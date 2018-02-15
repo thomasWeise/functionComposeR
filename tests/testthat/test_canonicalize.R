@@ -1,0 +1,87 @@
+library("functionComposeR")
+context("function.canonicalize")
+
+#' Check that two functions have exactly the same interface
+.functions.have.same.interface <- function(f, g) {
+  expect_identical(is.function(f), TRUE)
+  expect_identical(is.function(g), TRUE)
+  primitive <- is.primitive(g)
+  expect_identical(primitive, is.primitive(f))
+  if(primitive) {
+    args <- formals(args(g))
+    expect_identical(args, formals(args(f)))
+  } else {
+    args <- formals(g)
+    expect_identical(args, formals(f))
+  }
+  expect_identical(environment(f), environment(g));
+}
+
+test_that("Test canonicalize sin", {
+  f <- sin
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  x <- runif(n=10000)
+  expect_identical(f(x), g(x))
+})
+
+test_that("Test canonicalize user-provided unary function", {
+  f <- function(x) {
+    (x*5)/7
+  }
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  x <- runif(n=10000)
+  expect_identical(f(x), g(x))
+})
+
+test_that("Test canonicalize user-provided unary function with external constant", {
+  k <- 23;
+  f <- function(x) {
+    (x*5)/k
+  }
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  x <- runif(n=10000)
+  expect_identical(f(x), g(x))
+})
+
+
+test_that("Test canonicalize user-provided binary function with external constant", {
+  k <- 23;
+  f <- function(x, y=8) {
+    c((x*5)/k, (y-k)+x)
+  }
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  x <- runif(n=10000)
+  y <- runif(n=10000)
+  expect_identical(f(x, y), g(x, y))
+  expect_identical(f(x), g(x))
+})
+
+
+test_that("Test canonicalize user-provided ternary function with external constant", {
+  k <- 23;
+  f <- function(x=7, y=8, z) {
+    c(z+(x*5)/k, z*(y-k)+x)
+  }
+
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  x <- runif(n=10000)
+  y <- runif(n=10000)
+  z <- runif(n=10000)
+  res <- f(x, y, z)
+  expect_identical(res, g(x, y, z))
+  expect_identical(f(z=z), g(z=z))
+  expect_identical(f(x=x, z=z), g(x=x, z=z))
+  expect_identical(f(y=y, z=z), g(y=y, z=z))
+  k <- 24;
+  expect_false(identical(f(x, y, z), g(x, y, z)))
+  expect_false(identical(f(z=z), g(z=z)))
+  expect_false(identical(f(x=x, z=z), g(x=x, z=z)))
+  expect_false(identical(f(y=y, z=z), g(y=y, z=z)))
+  expect_false(identical(f(x, y, z), res))
+  expect_identical(res, g(x, y, z))
+})
