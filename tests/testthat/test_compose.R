@@ -100,3 +100,19 @@ test_that("Test compose two multi-argument functions (II)", {
   expect_identical(f2(4, 5, f1(1,2,3)), f(4, 5, 1, 2, 3))
   expect_identical(f2(-4, -5, f1(-1,-2,-3)), f(-4, -5, -1, -2, -3))
 })
+
+
+test_that("Test compose functions multiple times", {
+  i<-45
+  j<-33
+  k<-23
+  f <- function(x) { (x*(x-i)) - x/sinh(k*cos(j-atan(k+j))) }
+  g <- function(x) { abs(x)^(abs(1/(3-i))) + (j - k*exp(-i)) / ((i*j) * x) }
+  h.1.plain <- function(x) g(f(x))
+  h.1.composed <- function.compose(f, g)
+  h.2.plain <- function(x) g(f(g(f(x))))
+  h.2.composed <- function.compose(function.compose(function.compose(f, g), f), g)
+  x <- runif(1000)
+  expect_identical(h.1.composed(x), h.1.plain(x))
+  expect_identical(h.2.composed(x), h.2.plain(x))
+})

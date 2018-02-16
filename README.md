@@ -24,8 +24,8 @@ As example, assume you have set `k <- 23` and now want to compose the
 functions `f<-function(x) { (k*x) + 7 }` and
 `g<-function(x) { (k*k-x*x) / (x - sin(k)) }` to a function `h`.
 You can do that by writing `h<-function(x) g(f(x))`.
-Of course, if you later try to inspect `h` and just write `h`, you will
-see exactly this, `function(x) g(f(x))`.
+Of course, if you later try to inspect `h` and just write `h` in the R console,
+you will see exactly this: `function(x) g(f(x))`.
 
 This leads to two issues: First, if you do not know `f` and `g`, the output is meaningless and opaque, you cannot interpret it.
 Second, evaluating `h` is unnecessarily slow: It performs
@@ -34,8 +34,8 @@ locations, although the value of `k` should be fixed to `23`.
 Matter of fact, also `k*k` and `sin(k)` are constants which could
 be known.
 
-The goal of `function.compose` is to resolve these two issues. If you do
-`h<-function.compose(f, g)` instead of `h<-function(x) g(f(x))`, a
+The goal of our new function `function.compose` is to resolve these two issues.
+If you do `h<-function.compose(f, g)` instead of `h<-function(x) g(f(x))`, a
 new function composed of both the bodies of `f` and `g` is created.
 Furthermore, as many of the variables and expressions in the body which can
 be resolved as possible are replaced by their constant result. Printing the
@@ -120,7 +120,76 @@ If `devtools` is not yet installed on your machine, you need to FIRST do
     expression.simplify(body(f), envir=environment(f))
     # 8 + x
 
+
+# Detailed Example
+Let us now look at some more complex composed functions and also check the performance of the composed functions.
+
+## Simple Composition
+
+First, we again compose two functions which also access some variables from the environment.
+
+    i<-45
+    j<-33
+    k<-23
+    f <- function(x) { (x*(x-i)) - x/sinh(k*cos(j-atan(k+j))) }
+    g <- function(x) { abs(x)^(abs(1/(3-i))) + (j - k*exp(-i)) / ((i*j) * x) }
+    h.1.plain <- function(x) g(f(x))
+    h.1.composed <- function.compose(f, g)
+
+Printing `h.1.plain` and `h.1.composed` again reveals the difference between ordinary function composition in `R` and function composition using our `functionComposeR` package:
+
+    h.1.plain
+    # function(x) g(f(x))
+    h.1.composed
+    # function (x) 
+    # {
+    #     x <- (x * (x - 45)) - x/4818399372.40284
+    #     abs(x)^0.0238095238095238 + 33/(1485 * x)
+    # }
+    
+## Nested Function Composition
+
+But we can also compose multiple functions, i.e., do
+
+    h.2.plain <- function(x) g(f(g(f(x))))
+    h.2.composed <- function.compose(function.compose(function.compose(f, g), f), g)
+
+which yields functions of the form
+
+    h.2.plain
+    # function(x) g(f(g(f(x))))
+    h.2.composed
+    # function (x) 
+    # {
+    #     x <- {
+    #         x <- {
+    #             x <- (x * (x - 45)) - x/4818399372.40284
+    #             abs(x)^0.0238095238095238 + 33/(1485 * x)
+    #         }
+    #         (x * (x - 45)) - x/4818399372.40284
+    #     }
+    #     abs(x)^0.0238095238095238 + 33/(1485 * x)
+    # }
+    
+Benchmarking
+
+Let us finally evaluate the performance of the composed functions versus their plain counterparts. We therefore use the package [microbenchmark](http://cran.r-project.org/web/packages/microbenchmark/index.html).
+
+    x &lt;- runif(1000)
+    library(microbenchmark)
+    microbenchmark(h.1.plain(x), h.1.composed(x), h.2.plain(x), h.2.composed(x))
+    # Unit: microseconds
+    #             expr     min       lq      mean   median       uq     max neval
+    #     h.1.plain(x)  78.841  79.4880  83.05224  79.9775  85.8485 119.824   100
+    #  h.1.composed(x)  75.890  76.4675  93.23504  76.8385  78.9615 896.681   100
+    #     h.2.plain(x) 153.793 154.8100 166.31210 155.5855 164.3685 743.360   100
+    #  h.2.composed(x) 149.035 149.4870 155.25070 149.8895 154.0960 213.395   100
+
+From the result, it becomes clearly visible that the upper quartiles of the runtime consumption of the composed functions are below the lower quartiles of the runtime consumption of their plain counterparts. Obviously, this very strongly depends on the example, but it is a clear indicator that our package can compose functions in way that is both human-readable and quick to evaluate.
+
 ## Contact
+
+For more information, see our corresponding [blog post](http://iao.hfuu.edu.cn/blogs/programming-blog/131).
 
 If you have any questions or suggestions, please contact
 [Prof. Dr. Thomas Weise](http://iao.hfuu.edu.cn/team/director) of the

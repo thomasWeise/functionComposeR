@@ -85,8 +85,8 @@ function.compose(f2, g2)
 k<-23
 f<-function(x) { (k*x) + 7 }
 g<-function(x) { (k*k-x*x) / (x - sin(k)) }
-h<-function(x) g(f(x))
-h
+h.plain<-function(x) g(f(x))
+h.plain
 # function(x) g(f(x))
 h.composed<-function.compose(f, g)
 h.composed
@@ -95,4 +95,44 @@ h.composed
 #   x <- (23 * x) + 7
 #   (529 - x * x)/(x - -0.846220404175171)
 # }
+i<-45
+j<-33
+k<-23
+f <- function(x) { (x*(x-i)) - x/sinh(k*cos(j-atan(k+j))) }
+g <- function(x) { abs(x)^(abs(1/(3-i))) + (j - k*exp(-i)) / ((i*j) * x) }
+h.1.plain <- function(x) g(f(x))
+h.1.plain
+# function(x) g(f(x))
+h.1.composed <- function.compose(f, g)
+h.1.composed
+# function (x)
+# {
+#     x <- (x * (x - 45)) - x/4818399372.40284
+#     abs(x)^0.0238095238095238 + 33/(1485 * x)
+# }
+h.2.plain <- function(x) g(f(g(f(x))))
+h.2.plain
+# function(x) g(f(g(f(x))))
+h.2.composed <- function.compose(function.compose(function.compose(f, g), f), g)
+h.2.composed
+# function (x)
+# {
+#     x <- {
+#         x <- {
+#             x <- (x * (x - 45)) - x/4818399372.40284
+#             abs(x)^0.0238095238095238 + 33/(1485 * x)
+#         }
+#         (x * (x - 45)) - x/4818399372.40284
+#     }
+#     abs(x)^0.0238095238095238 + 33/(1485 * x)
+# }
+x <- runif(1000)
+library(microbenchmark)
+microbenchmark(h.1.plain(x), h.1.composed(x), h.2.plain(x), h.2.composed(x))
+# Unit: microseconds
+#             expr     min       lq      mean   median       uq     max neval
+#     h.1.plain(x)  78.841  79.4880  83.05224  79.9775  85.8485 119.824   100
+#  h.1.composed(x)  75.890  76.4675  93.23504  76.8385  78.9615 896.681   100
+#     h.2.plain(x) 153.793 154.8100 166.31210 155.5855 164.3685 743.360   100
+#  h.2.composed(x) 149.035 149.4870 155.25070 149.8895 154.0960 213.395   100
 }
