@@ -47,6 +47,20 @@ result of `h<-function.compose(f, g)` would yield the readable and fast function
         (529 - x * x)/(x - -0.846220404175171)
       }
 
+    
+## Installation
+
+You can install the package directl from GitHub by using the package
+[`devtools`](http://cran.r-project.org/web/packages/devtools/index.html) as
+follows:
+
+    library(devtools)
+    install_github("thomasWeise/functionComposeR")
+
+If `devtools` is not yet installed on your machine, you need to FIRST do
+
+    install.packages("devtools")
+    
 ## Usage
 
 ### Composing Functions
