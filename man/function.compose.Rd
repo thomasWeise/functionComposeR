@@ -41,6 +41,28 @@ If the result of \code{f} is used exactly once in \code{g}, we substitute
 the body of \code{f} into \code{g} to directly replace the bridge parameter.
 If it is used more than once, we first shovel its result into a variable,
 namely the bridge parameter.
+
+As example, assume you have set \code{k <- 23} and now want to compose the
+functions \code{f<-function(x) { (k*x) + 7 }} and \code{g<-function(x) {
+(k*k-x*x) / (x - sin(k)) }} to a function \code{h}, you can do that by
+writing \code{h<-function(x) g(f(x))}. Of course, if you later try to inspect
+\code{h} and just write \code{h}, you will see exactly this,
+\code{function(x) g(f(x))}. This leads to two issues: First, if you do not
+know \code{f} and \code{g}, the output is meaningless and opaque, you cannot
+interpret it. Second, evaluating \code{h} is unnecessarily slow: It performs
+two inner function calls and needs to evaluate a variable \code{k} at several
+locations, although the value of \code{k} should be fixed to \code{23}.
+Matter of fact, also \code{k*k} and \code{sin(k)} are constants which could
+be known.
+
+The goal of \code{function.compose} is to resolve these two issues. If you do
+\code{h<-function.compose(f, g)} instead of \code{h<-function(x) g(f(x))}, a
+new function composed of both the bodies of \code{f} and \code{g} is created.
+Furthermore, as many of the variables and expressions in the body which can
+be resolved as possible are replaced by their constant result. Printing the
+result of \code{h<-function.compose(f, g)} would yield (something like)
+\code{function (x) { x <- (23 * x) + 7; (529 - x * x)/(x -
+-0.846220404175171) }}.
 }
 \examples{
 f<-function(x,y,z=7,c) { x+23*y-z+2+c }
@@ -60,4 +82,17 @@ g2 <- function(x) { x/(k - sin(k)) }
 function.compose(f2, g2)
 # function (x)
 # (115 + x)/23.8462204041752
+k<-23
+f<-function(x) { (k*x) + 7 }
+g<-function(x) { (k*k-x*x) / (x - sin(k)) }
+h<-function(x) g(f(x))
+h
+# function(x) g(f(x))
+h.composed<-function.compose(f, g)
+h.composed
+# function (x)
+# {
+#   x <- (23 * x) + 7
+#   (529 - x * x)/(x - -0.846220404175171)
+# }
 }
