@@ -25,5 +25,5 @@ Collate:
     'compose.R'
 RoxygenNote: 6.0.1.9000
 Imports: methods, pryr, stringr, rlang
-Suggests: testthat
+Suggests: testthat, roxygen2
 
