@@ -44,7 +44,7 @@ namely the bridge parameter.
 
 As example, assume you have set \code{k <- 23} and now want to compose the
 functions \code{f<-function(x) { (k*x) + 7 }} and \code{g<-function(x) {
-(k*k-x*x) / (x - sin(k)) }} to a function \code{h}, you can do that by
+(k*k-x*x) / (x - sin(k)) }} to a function \code{h}. You can do that by
 writing \code{h<-function(x) g(f(x))}. Of course, if you later try to inspect
 \code{h} and just write \code{h}, you will see exactly this,
 \code{function(x) g(f(x))}. This leads to two issues: First, if you do not
