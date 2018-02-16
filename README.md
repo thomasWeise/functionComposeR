@@ -68,18 +68,6 @@ result of `h<-function.compose(f, g)` would yield the readable and fast function
     function.compose(f2, g2)
     # function (x)
     # (115 + x)/23.8462204041752
-
-### Canonicalizing Functions
-
-    f <- function(x) { 5+3+x }
-    function.canonicalize(f)
-    # function (x)
-    # 8 + x
-    z <- 24;
-    g <- function(x) { tan(sin(z) + (z*27) / x) }
-    function.canonicalize(g)
-    # function (x)
-    # tan(-0.905578362006624 + 648/x)
     
     k<-23
     f<-function(x) { (k*x) + 7 }
@@ -94,6 +82,29 @@ result of `h<-function.compose(f, g)` would yield the readable and fast function
     #   x <- (23 * x) + 7
     #   (529 - x * x)/(x - -0.846220404175171)
     # }
+
+### Canonicalizing Functions
+
+    f <- function(x) { 5+3+x }
+    function.canonicalize(f)
+    # function (x)
+    # 8 + x
+    z <- 24;
+    g <- function(x) { tan(sin(z) + (z*27) / x) }
+    function.canonicalize(g)
+    # function (x)
+    # tan(-0.905578362006624 + 648/x)
+
+### Simplifying Expressions
+
+    expression.simplify(5+3)
+    # [1] 8
+    k <- 8
+    expression.simplify( ((5+3*k)-1)/k - 2^tan(k) )
+    # [1] 3.491024
+    f <- function(x) { 5+3+x }
+    expression.simplify(body(f), envir=environment(f))
+    # 8 + x
 
 ## Contact
 
