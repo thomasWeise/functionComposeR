@@ -2,8 +2,8 @@ Package: functionComposeR
 Type: Package
 Title: R Utilities for Composing and Canonicalizing Functions
 Version: 0.8.0
-Author: Dr. Thomas Weise <tweise@gmx.de>
-Maintainer: Dr. Thomas Weise <tweise@gmx.de>
+Author: Dr. Thomas Weise <tweise@hfuu.edu.cn>
+Maintainer: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Description: This package provides three functions, namely
    \code{expression.simplify}, which attempts to resolve as many sub-expressions of
    an expression as possible, \code{function.canonicalize}, which tries to resolve
@@ -18,6 +18,7 @@ Description: This package provides three functions, namely
    functions.
 License: GPL-3
 Encoding: UTF-8
+BugReports: http://github.com/thomasWeise/functionComposeR/issues
 LazyData: true
 Collate: 
     'simplify.R'
