@@ -16,7 +16,7 @@ Description: This package provides three functions, namely
    as many variables substituted by constants and sub-expressions evaluated to
    constants as possible, which should also speed up the computation of the
    functions.
-License: GPL-3
+License: LGPL-3
 Encoding: UTF-8
 BugReports: http://github.com/thomasWeise/functionComposeR/issues
 LazyData: true
