@@ -56,6 +56,10 @@
 #' \code{function (x) { x <- (23 * x) + 7; (529 - x * x)/(x -
 #' -0.846220404175171) }}.
 #'
+#' Pittfals: Currently, I don't know how to handle '...' arguments. See
+#' \url{http://github.com/thomasWeise/functionComposeR/issues/1} for a
+#' discussion.
+#'
 #' @param f the inner function
 #' @param g the outer function
 #' @param f2g the argument of \code{g} to be replaced with the return value of \code{f}

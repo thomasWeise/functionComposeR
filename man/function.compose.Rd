@@ -63,6 +63,10 @@ be resolved as possible are replaced by their constant result. Printing the
 result of \code{h<-function.compose(f, g)} would yield (something like)
 \code{function (x) { x <- (23 * x) + 7; (529 - x * x)/(x -
 -0.846220404175171) }}.
+
+Pittfals: Currently, I don't know how to handle '...' arguments. See
+\url{http://github.com/thomasWeise/functionComposeR/issues/1} for a
+discussion.
 }
 \examples{
 f<-function(x,y,z=7,c) { x+23*y-z+2+c }
