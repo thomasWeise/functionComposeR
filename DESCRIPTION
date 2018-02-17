@@ -18,6 +18,7 @@ Description: This package provides three functions, namely
    functions.
 License: LGPL-3
 Encoding: UTF-8
+URL: http://github.com/thomasWeise/functionComposeR/
 BugReports: http://github.com/thomasWeise/functionComposeR/issues
 LazyData: true
 Collate: 
