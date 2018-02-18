@@ -85,3 +85,11 @@ test_that("Test canonicalize user-provided ternary function with external consta
   expect_false(identical(f(x, y, z), res))
   expect_identical(res, g(x, y, z))
 })
+
+test_that("Test canonicalize a constant function", {
+  f <- function(x) 5
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  expect_identical(f(1), g(1))
+  expect_identical(g(1), 5)
+})

@@ -46,7 +46,13 @@ function.canonicalize <- function(f) {
   if(base::is.function(f) && (!(base::is.primitive(f)))) {
     f.body <- base::body(f);
     f.body <- base::force(f.body);
-    if(is.language(f.body)) {
+
+    # Only if the function body is a language element, we can optimize it.
+    # If base::is.language(f.body) is FALSE, we probably have a constant
+    # function here, so we don't need (and neither can) improve it.
+    if(base::is.language(f.body)) {
+      f.body.orig <- f.body;
+
       # Get the environment of f
       f.env <- base::environment(f);
       f.env <- base::force(f.env);
@@ -85,13 +91,22 @@ function.canonicalize <- function(f) {
       f.body <- functionComposeR::expression.simplify(f.body, f.env);
       f.body <- base::force(f.body);
 
-      # After the body has been resolved as far is it is possible, we re-compose
-      # the function
-      f <- pryr::make_function(args=base::formals(f), body=f.body, env=f.env)
+      if(base::is.language(f.body)) {
+        # After the body has been resolved as far is it is possible, we re-compose
+        # the function
+        f <- pryr::make_function(args=base::formals(f), body=f.body, env=f.env)
+        f <- base::force(f);
+        # Now we apply the default unenclose method from pryr (for good measures)
+        f <- pryr::unenclose(f=f);
+      } else {
+        # If we get here, the body of f somehow became a constant.
+        # This won't fly with pryr::make_function nor with pryr::unenclose.
+        # So we have to first construct a function with the original body,
+        # then change the body to the new (constant) body.
+        f <- pryr::make_function(args=base::formals(f), body=f.body.orig, env=f.env)
+        base::body(f) <- f.body;
+      }
       f <- base::force(f);
-
-      # Now we apply the default unenclose method from pryr (for good measures)
-      f <- pryr::unenclose(f=f);
 
       # Finally, we fix the environment
       base::environment(f) <- f.env;

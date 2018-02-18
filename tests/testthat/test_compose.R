@@ -116,3 +116,15 @@ test_that("Test compose functions multiple times", {
   expect_identical(h.1.composed(x), h.1.plain(x))
   expect_identical(h.2.composed(x), h.2.plain(x))
 })
+
+
+
+test_that("Test compose functions with constants", {
+  f <- function(x) 5
+  g <- function.compose(f, sin);
+  expect_identical(g(4), sin(5));
+
+  f <- function(x) 5
+  g <- function.compose(sin, f);
+  expect_identical(g(4), 5);
+})
