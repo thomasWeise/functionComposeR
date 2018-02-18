@@ -92,4 +92,10 @@ test_that("Test canonicalize a constant function", {
   .functions.have.same.interface(f, g)
   expect_identical(f(1), g(1))
   expect_identical(g(1), 5)
+
+  bwdv <- 7
+  f <- function(x) bwdv
+  g <- function.canonicalize(f)
+  expect_identical(f(1), g(1))
+  expect_identical(g(1), 7)
 })

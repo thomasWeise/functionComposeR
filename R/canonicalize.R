@@ -78,10 +78,12 @@ function.canonicalize <- function(f) {
                                   })
       f.body <- base::force(f.body);
 
-
-      # We now apply the second line of resolution, namely substitute_q
-      f.body <- pryr::substitute_q(x=f.body, env=f.env)
-      f.body <- base::force(f.body);
+      if(base::is.language(f.body)) {
+        # We now apply the second line of resolution, namely substitute_q,
+        # but only if f.body has not become a constant yet.
+        f.body <- pryr::substitute_q(x=f.body, env=f.env)
+        f.body <- base::force(f.body);
+      }
 
       # Now with substitute direct to clean up
       f.body <- methods::substituteDirect(object=f.body, frame=f.env, cleanFunction=TRUE);
