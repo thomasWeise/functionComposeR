@@ -1,7 +1,7 @@
 Package: functionComposeR
 Type: Package
 Title: R Utilities for Composing and Canonicalizing Functions
-Version: 0.8.0
+Version: 0.8.1
 Author: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Maintainer: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Description: This package provides three functions, namely
