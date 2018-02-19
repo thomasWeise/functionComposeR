@@ -1,4 +1,4 @@
-# R Utilities for Composing and Canonicalizing Functions
+# R Package for Composing and Canonicalizing Functions
 
 [<img alt="Travis CI Build Status" src="https://img.shields.io/travis/thomasWeise/functionComposeR/master.svg" height="20"/>](https://travis-ci.org/thomasWeise/functionComposeR/)
 
