@@ -121,10 +121,10 @@ If `devtools` is not yet installed on your machine, you need to FIRST do
     # 8 + x
 
 
-# Detailed Example
+## Detailed Example
 Let us now look at some more complex composed functions and also check the performance of the composed functions.
 
-## Simple Composition
+### Simple Composition
 
 First, we again compose two functions which also access some variables from the environment.
 
@@ -147,7 +147,7 @@ Printing `h.1.plain` and `h.1.composed` again reveals the difference between ord
     #     abs(x)^0.0238095238095238 + 33/(1485 * x)
     # }
     
-## Nested Function Composition
+### Nested Function Composition
 
 But we can also compose multiple functions, i.e., do
 
@@ -171,11 +171,11 @@ which yields functions of the form
     #     abs(x)^0.0238095238095238 + 33/(1485 * x)
     # }
     
-Benchmarking
+### Benchmarking
 
 Let us finally evaluate the performance of the composed functions versus their plain counterparts. We therefore use the package [microbenchmark](http://cran.r-project.org/web/packages/microbenchmark/index.html).
 
-    x &lt;- runif(1000)
+    x <- runif(1000)
     library(microbenchmark)
     microbenchmark(h.1.plain(x), h.1.composed(x), h.2.plain(x), h.2.composed(x))
     # Unit: microseconds
@@ -186,6 +186,11 @@ Let us finally evaluate the performance of the composed functions versus their p
     #  h.2.composed(x) 149.035 149.4870 155.25070 149.8895 154.0960 213.395   100
 
 From the result, it becomes clearly visible that the upper quartiles of the runtime consumption of the composed functions are below the lower quartiles of the runtime consumption of their plain counterparts. Obviously, this very strongly depends on the example, but it is a clear indicator that our package can compose functions in way that is both human-readable and quick to evaluate.
+
+## License
+
+The copyright holder of this package is Prof. Dr. Thomas Weise (see Contact).
+The package is licensed under the  GNU LESSER GENERAL PUBLIC LICENSE Version 3, 29 June 2007.
 
 ## Contact
 
