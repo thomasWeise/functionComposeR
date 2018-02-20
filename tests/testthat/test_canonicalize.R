@@ -153,25 +153,24 @@ test_that("Test canonicalize nested functions with ... (IV)", {
 })
 
 
+test_that("Test canonicalize functions with vector constants", {
+  k <- c(1, 2, 3, 4);
+  f <- function(x) x*k
 
-#test_that("Test canonicalize functions with vector constants", {
-#  k <- c(1, 2, 3, 4);
-#  f <- function(x) x*k
-#
-#  g <- function.canonicalize(f)
-#  .functions.have.same.interface(f, g)
-#  x <- runif(n=length(k))
-#  expect_identical(f(x), g(x))
-#})
+  g <- function.canonicalize(f)
+  .functions.have.same.interface(f, g)
+  x <- runif(n=length(k))
+  expect_identical(f(x), g(x))
+})
 
-#test_that("Test canonicalize functions with vector constants", {
-#  k <- c(1, 2, 3, 4);
-#  f <- function(x, y) (x+(5/k)) - y
-#  g <- function(...) f(f(...) - k/f(...), k*23)
-#
-#  h <- function.canonicalize(g)
-#  .functions.have.same.interface(h, g)
-#  x <- runif(n=length(k))
-#  y <- runif(n=length(k))
-#  expect_identical(g(x, y), h(x, y))
-#})
+test_that("Test canonicalize functions with vector constants", {
+  k <- c(1, 2, 3, 4);
+  f <- function(x, y) (x+(5/k)) - y
+  g <- function(...) f(f(...) - k/f(...), k*23)
+
+  h <- function.canonicalize(g)
+  .functions.have.same.interface(h, g)
+  x <- runif(n=length(k))
+  y <- runif(n=length(k))
+  expect_identical(g(x, y), h(x, y))
+})
