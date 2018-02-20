@@ -71,7 +71,16 @@ function.canonicalize <- function(f) {
                                       x.deparsed <- base::deparse(x)
                                       if (x.deparsed %in% f.env.ls) {
                                         # OK, we can resolve the name x
-                                        return(base::get(x.deparsed, envir = f.env))
+                                        replacement <- base::get(x.deparsed, envir = f.env);
+                                        if(base::is.function(replacement)) {
+                                          # If we make a function call, try to
+                                          # recursively canonicalize that call
+                                          # (different from the schloerke solution)
+                                          if(!(base::identical(f, replacement))) {
+                                            return(functionComposeR::function.canonicalize(replacement));
+                                          }
+                                        }
+                                        return(replacement);
                                       }
                                     }
                                     return(x);

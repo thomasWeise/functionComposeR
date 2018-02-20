@@ -99,3 +99,79 @@ test_that("Test canonicalize a constant function", {
   expect_identical(f(1), g(1))
   expect_identical(g(1), 7)
 })
+
+
+test_that("Test canonicalize nested functions with ... (I)", {
+  k <- 23;
+  f <- function(x, y) (x+(5/k)) - y
+  g <- function(x, ...) f(x, ...)
+
+  h <- function.canonicalize(g)
+  .functions.have.same.interface(h, g)
+  x <- runif(n=10000)
+  y <- runif(n=10000)
+  expect_identical(g(x, y), h(x, y))
+})
+
+
+test_that("Test canonicalize nested functions with ... (II)", {
+  k <- 23;
+  f <- function(x, y) (x+(5/k)) - y
+  g <- function(...) f(...)
+
+  h <- function.canonicalize(g)
+  .functions.have.same.interface(h, g)
+  x <- runif(n=10000)
+  y <- runif(n=10000)
+  expect_identical(g(x, y), h(x, y))
+})
+
+
+test_that("Test canonicalize nested functions with ... (III)", {
+  k <- 23;
+  f <- function(x, y) (x+(5/k)) - y
+  g <- function(...) f(...) - k/f(...)
+
+  h <- function.canonicalize(g)
+  .functions.have.same.interface(h, g)
+  x <- runif(n=10000)
+  y <- runif(n=10000)
+  expect_identical(g(x, y), h(x, y))
+})
+
+
+test_that("Test canonicalize nested functions with ... (IV)", {
+  k <- 23;
+  f <- function(x, y) (x+(5/k)) - y
+  g <- function(...) f(f(...) - k/f(...), k*23)
+
+  h <- function.canonicalize(g)
+  .functions.have.same.interface(h, g)
+  x <- runif(n=10000)
+  y <- runif(n=10000)
+  expect_identical(g(x, y), h(x, y))
+})
+
+
+
+#test_that("Test canonicalize functions with vector constants", {
+#  k <- c(1, 2, 3, 4);
+#  f <- function(x) x*k
+#
+#  g <- function.canonicalize(f)
+#  .functions.have.same.interface(f, g)
+#  x <- runif(n=length(k))
+#  expect_identical(f(x), g(x))
+#})
+
+#test_that("Test canonicalize functions with vector constants", {
+#  k <- c(1, 2, 3, 4);
+#  f <- function(x, y) (x+(5/k)) - y
+#  g <- function(...) f(f(...) - k/f(...), k*23)
+#
+#  h <- function.canonicalize(g)
+#  .functions.have.same.interface(h, g)
+#  x <- runif(n=length(k))
+#  y <- runif(n=length(k))
+#  expect_identical(g(x, y), h(x, y))
+#})
