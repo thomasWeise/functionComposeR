@@ -3,6 +3,7 @@
 #' @importFrom rlang as_closure
 
 #' @include canonicalize.R
+#' @include simplify.R
 
 #' @title Concatenate Two Functions
 #'
@@ -56,9 +57,9 @@
 #' \code{function (x) { x <- (23 * x) + 7; (529 - x * x)/(x -
 #' -0.846220404175171) }}.
 #'
-#' Pittfals: Currently, I don't know how to handle '...' arguments. See
-#' \url{http://github.com/thomasWeise/functionComposeR/issues/1} for a
-#' discussion.
+#' Additionally, we replace identical sub-expressions in the composed function
+#' by the same object. This may be advantegous for a slightly faster execution
+#' due to being more cache friendly.
 #'
 #' @param f the inner function
 #' @param g the outer function
@@ -137,9 +138,13 @@
 #' #     h.2.plain(x) 153.793 154.8100 166.31210 155.5855 164.3685 743.360   100
 #' #  h.2.composed(x) 149.035 149.4870 155.25070 149.8895 154.0960 213.395   100
 function.compose <- function(f, g, f2g="x") {
+  .function.compose(f, g, f2g, .cache.make())
+}
 
+# The implementation of function.compose
+.function.compose <- function(f, g, f2g="x", cache) {
   # First, we canonicalize g
-  g <- functionComposeR::function.canonicalize(g);
+  g <- .function.canonicalize(f=g, cache=cache);
   g <- base::force(g);
 
   # If f is null or f2g is null, we just return the canonicalized g.
@@ -171,7 +176,7 @@ function.compose <- function(f, g, f2g="x") {
   }
 
   # We now canonicalize f
-  f <- functionComposeR::function.canonicalize(f);
+  f <- .function.canonicalize(f=f, cache=cache);
   f <- base::force(f);
 
   # We then try to extract the body and arguments of function f
@@ -296,7 +301,7 @@ function.compose <- function(f, g, f2g="x") {
   h <- base::force(h);
 
   # Finally, we try to resolve all elements of it.
-  h <- functionComposeR::function.canonicalize(h);
+  h <- .function.canonicalize(f=h, cache=cache);
   h <- base::force(h);
   return(h)
 }

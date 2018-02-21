@@ -27,7 +27,8 @@ You can do that by writing `h<-function(x) g(f(x))`.
 Of course, if you later try to inspect `h` and just write `h` in the R console,
 you will see exactly this: `function(x) g(f(x))`.
 
-This leads to two issues: First, if you do not know `f` and `g`, the output is meaningless and opaque, you cannot interpret it.
+This leads to two issues: First, if you do not know `f` and `g`, the output
+is meaningless and opaque, you cannot interpret it.
 Second, evaluating `h` is unnecessarily slow: It performs
 two inner function calls and needs to evaluate a variable `k` at several
 locations, although the value of `k` should be fixed to `23`.
@@ -47,6 +48,10 @@ result of `h<-function.compose(f, g)` would yield the readable and fast function
         (529 - x * x)/(x - -0.846220404175171)
       }
 
+Another component which might increase the speed of function execution is
+the replacement of identical sub-expressions with the same object. This may
+(or may not) be more cache friendly and therefore faster (or not).
+    
     
 ## Installation
 
@@ -62,6 +67,8 @@ If `devtools` is not yet installed on your machine, you need to FIRST do
     install.packages("devtools")
     
 ## Usage
+
+Here we give some use cases and additional examples for using the functions provided by our package.
 
 ### Composing Functions
 

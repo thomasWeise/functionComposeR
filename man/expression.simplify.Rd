@@ -26,6 +26,10 @@ We can, however, replace the \code{5+4} with a \code{9}.
 Since this function is still an early draft, there may be many scenarios
 where it does not simplify an expression as much as it could be possible.
 Hopefully, we can impove this in the future and make it more powerful.
+
+Additionally, this function makes sure that identical sub-expressions will be
+replaced by the exactly same object. This may have advantages, e.g., making
+the expression more cache friendly when the object is a vector.
 }
 \examples{
 expression.simplify(5+3)

@@ -22,13 +22,14 @@ function \code{f} are evaluated and replaced with constant values where
 possible.
 
 We make use of the functions \code{\link{unenclose}},
-\code{\link{modify_lang}}, and \code{\link{substitute_q}}   of
-the package \code{pryr}, the function \code{\link{substituteDirect}}
-of the package \code{methods} and also of the ideas given by by
+\code{\link{modify_lang}}, and \code{\link{substitute_q}}   of the package
+\code{pryr}, the function \code{\link{substituteDirect}} of the package
+\code{methods} and also of our recursive version of the ideas given by by
 \code{schloerke} (\url{http://github.com/schloerke}) at
 \url{http://github.com/hadley/pryr/issues/43}. We also apply
-\code{\link{expression.simplify}} to take care of the
-partial resolution of the function body.
+\code{\link{expression.simplify}} to take care of the partial resolution of
+the function body and for replacing identical sub-expressions with the same
+object (e.g., to make the execution more cache friendly).
 
 These measures are intented to produce a version of a function \code{f} which
 is both human-readable and as fast to evaluate as possible. The new function
@@ -44,4 +45,25 @@ g <- function(x) { tan(sin(z) + (z*27) / x) }
 function.canonicalize(g)
 # function (x)
 # tan(-0.905578362006624 + 648/x)
+a <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+b <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+c <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+f <- function(x) (c-(x*a)/b)*(a+b+c)
+g <- function.canonicalize(f)
+g
+# function (x)
+# (c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+# 18, 19, 20, 21, 22, 23, 24, 25) - (x * c(1, 2, 3, 4, 5, 6, 7,
+# 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+# 24, 25))/c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+# 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)) * c(3, 6, 9, 12, 15,
+# 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63,
+# 66, 69, 72, 75)
+library(microbenchmark)
+x <- runif(1000)
+microbenchmark(f(x), g(x))
+# Unit: microseconds
+# expr   min    lq     mean median     uq    max neval
+# f(x) 8.868 9.097 10.01950 9.2935 9.4805 35.340   100
+# g(x) 8.285 8.506  9.38347 8.6730 8.7650 28.501   100
 }

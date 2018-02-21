@@ -4,6 +4,32 @@
 # a constant for the enclosure begin
 .enclosure.begin <- base::as.name("{")
 
+# make a cache
+.cache.make <- function() {
+  return(base::new.env(hash=FALSE));
+}
+
+# check if two elements are identical
+.cache.identical <- function(a, b) {
+  if(base::identical(a, b)) return(TRUE);
+  if(base::is.numeric(a) && base::is.numeric(b)) {
+    return(base::identical(base::as.vector(a), base::as.vector(b)));
+  }
+  return(FALSE);
+}
+
+# Canonicalize an expression by abusing an environment as modifiable list
+.cache.canonicalize <- function(expr, cache) {
+  .ls <- base::ls(cache);
+  for (.key in .ls) {
+    .value <- cache[[.key]];
+    if(base::identical(.value, expr)) {
+      return(.value);
+    }
+  }
+  cache[[base::toString(base::length(.ls)+1)]] <- expr;
+  return(expr);
+}
 
 #' @title Recursively Simplify an Expression in a given Environment
 #' @description We try to recursivelys simplify the expression \code{expr}
@@ -21,6 +47,10 @@
 #' where it does not simplify an expression as much as it could be possible.
 #' Hopefully, we can impove this in the future and make it more powerful.
 #'
+#' Additionally, this function makes sure that identical sub-expressions will be
+#' replaced by the exactly same object. This may have advantages, e.g., making
+#' the expression more cache friendly when the object is a vector.
+#'
 #' @param expr the expression to be simplified
 #' @param envir the environment in which the expression is to be simplified
 #' @export expression.simplify
@@ -34,9 +64,14 @@
 #' expression.simplify(body(f), envir=environment(f))
 #' # 8 + x
 expression.simplify <- function(expr, envir) {
+  .expression.simplify(expr=expr, envir=envir, cache=.cache.make());
+}
+
+# The implementation of expression.simplify
+.expression.simplify <- function(expr, envir, cache) {
   # If the expression is already numeric, we don't need to do anything
   if(base::is.numeric(expr)) {
-    return(expr);
+    return(.cache.canonicalize(expr=expr, cache=cache));
   }
 
   # First, we try to directly evaluate the expression
@@ -48,7 +83,7 @@ expression.simplify <- function(expr, envir) {
       if(!(base::is.primitive(result))) {
         # Cool, everything has worked and the expression is evaluated.
         # We can replace it with its result
-        return(result);
+        return(.cache.canonicalize(expr=result, cache=cache));
       }
     }, error=.ignore, warning=.ignore)
   }
@@ -57,30 +92,37 @@ expression.simplify <- function(expr, envir) {
 
   expr.length <- base::length(expr.list);
   # If the list has length 1, we can return it directly.
-  if((expr.length <= 1)) { return(expr); }
+  if((expr.length <= 1)) {
+    return(.cache.canonicalize(expr=expr, cache=cache));
+  }
 
   # If there are missing elements (this may happen if there is a `...` involved somewhere)
   # then we better not touch them...
   for(element in expr.list) {
     if(base::missing(element)) {
       # If there are missing values, we are done and quit immediately
-      return(expr);
+      return(.cache.canonicalize(expr=expr, cache=cache));
     }
   }
 
   # We try to remove useless enclosures such as "{x}" by converting them to the
   # form "x".
   if((expr.length == 2) && base::identical(expr.list[[1]], .enclosure.begin)) {
-    result <- functionComposeR::expression.simplify(expr.list[[2]], envir);
+    result <- .expression.simplify(expr=expr.list[[2]],
+                                   envir=envir,
+                                   cache=cache);
     result <- force(result);
     return(result);
   }
 
   # Otherwise, we will recursivel try to evaluate all sub-expressions
   # and return the result.
-  result <- base::as.call(base::lapply(X=expr.list,
-                                      FUN=functionComposeR::expression.simplify,
-                                      envir=envir));
+  result <- .cache.canonicalize(expr=
+              base::as.call(base::lapply(X=expr.list,
+                                         FUN=.expression.simplify,
+                                         envir=envir,
+                                         cache=cache)),
+              cache=cache);
   result <- base::force(result);
   return(result);
 }

@@ -1,7 +1,7 @@
 Package: functionComposeR
 Type: Package
 Title: R Package for Composing and Canonicalizing Functions
-Version: 0.8.2
+Version: 0.8.3
 Author: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Maintainer: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Description: This package provides three functions, namely
@@ -16,6 +16,13 @@ Description: This package provides three functions, namely
    as many variables substituted by constants and sub-expressions evaluated to
    constants as possible, which should also speed up the computation of the
    functions.
+   Additionally, the functions try to replace identical sub-expressions by the
+   same object. This can potentially make the function execution more cache
+   friendly.
+   Still, please be aware that this is a hacked-together early draft version
+   of the package (as indicated by the version number). There may be many
+   border cases where it produces nonsense. Please carefully test whether it
+   does exactly what you want before using it.
 License: LGPL-3
 Encoding: UTF-8
 URL: http://github.com/thomasWeise/functionComposeR/

@@ -174,3 +174,25 @@ test_that("Test canonicalize functions with vector constants", {
   y <- runif(n=length(k))
   expect_identical(g(x, y), h(x, y))
 })
+
+
+test_that("Test canonicalize functions with vector constants", {
+  a <- 1:25
+  b <- 1:25
+  c <- 1:25
+  f <- function(x) (c-(x*a)/b)*(a+b+c)
+  g <- function.canonicalize(f)
+  x <- runif(10000);
+  expect_identical(f(x), g(x))
+})
+
+
+test_that("Test canonicalize functions with vector constants", {
+  a <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+  b <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+  c <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+  f <- function(x) (c-(x*a)/b)*(a+b+c)
+  g <- function.canonicalize(f)
+  x <- runif(10000);
+  expect_identical(f(x), g(x))
+})
