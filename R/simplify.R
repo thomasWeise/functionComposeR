@@ -9,27 +9,18 @@
   return(base::new.env(hash=FALSE));
 }
 
-# check if two elements are identical
-.cache.identical <- function(a, b) {
-  if(base::identical(a, b)) return(TRUE);
-  if(base::is.numeric(a) && base::is.numeric(b)) {
-    return(base::identical(base::as.vector(a), base::as.vector(b)));
-  }
-  return(FALSE);
-}
-
 # Canonicalize an expression by abusing an environment as modifiable list
 .cache.canonicalize <- function(expr, cache) {
-  .ls <- base::ls(cache);
-  for (.key in .ls) {
-    .value <- cache[[.key]];
+  .cache.list <- base::as.list(cache);
+  for (.value in .cache.list) {
     if(base::identical(.value, expr)) {
       return(.value);
     }
   }
-  cache[[base::toString(base::length(.ls)+1)]] <- expr;
+  cache[[base::toString(base::length(.cache.list)+1)]] <- expr;
   return(expr);
 }
+
 
 #' @title Recursively Simplify an Expression in a given Environment
 #' @description We try to recursivelys simplify the expression \code{expr}
