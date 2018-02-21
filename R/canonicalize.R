@@ -13,7 +13,7 @@
 #' possible.
 #'
 #' We make use of the functions \code{\link{unenclose}},
-#' \code{\link{modify_lang}}, and \code{\link{substitute_q}}   of the package
+#' \code{\link{modify_lang}}, and \code{\link{substitute_q}} of the package
 #' \code{pryr}, the function \code{\link{substituteDirect}} of the package
 #' \code{methods} and also of our recursive version of the ideas given by by
 #' \code{schloerke} (\url{http://github.com/schloerke}) at
