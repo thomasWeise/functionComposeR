@@ -4,11 +4,12 @@
 
 ## Introduction
 
-This package provides three functions, namely
+This package provides four functions, namely
 
 1. `expression.simplify`, which attempts to resolve as many sub-expressions of an expression as possible,
 2. `function.canonicalize`, which tries to resolve the promises and variables inside a function, and
-3. `function.compose` which combines/chains two functions together.
+3. `function.compose`, which combines/chains two functions together.
+4. `function.substitute`, which substitutes a specified subset of the formal parameters of a function with specified values, yielding a function of smaller arity
 
 The goal is to be able to produce readable and quick-to-evaluate functions,
 in particular to be able to compose functions iteratively without creating
@@ -121,7 +122,20 @@ Here we give some use cases and additional examples for using the functions prov
     function.canonicalize(g)
     # function (x)
     # tan(-0.905578362006624 + 648/x)
+    
+### Substituting Function Parameters
 
+    f <- function(x, pars) pars[1] + pars[2]*(x + pars[3]*x)
+    f
+    # function(x, pars) pars[1] + pars[2]*(x + pars[3]*x)
+    g <- function.substitute(f, list("pars"=c(1, 2, 3)))
+    g
+    # function (x)
+    #  1 + 2 * (x + 3 * x)
+    h <- function.substitute(f, list("pars"=c(1, 2, 3), "x"=4))
+    # function () 
+    # 33
+    
 ### Simplifying Expressions
 
     expression.simplify(5+3)
@@ -132,7 +146,6 @@ Here we give some use cases and additional examples for using the functions prov
     f <- function(x) { 5+3+x }
     expression.simplify(body(f), envir=environment(f))
     # 8 + x
-
 
 ## Detailed Example
 Let us now look at some more complex composed functions and also check the performance of the composed functions.

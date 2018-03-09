@@ -3,6 +3,7 @@
 export(expression.simplify)
 export(function.canonicalize)
 export(function.compose)
+export(function.substitute)
 importFrom(methods,substituteDirect)
 importFrom(pryr,make_function)
 importFrom(pryr,modify_lang)

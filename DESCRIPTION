@@ -1,14 +1,16 @@
 Package: functionComposeR
 Type: Package
 Title: R Package for Composing and Canonicalizing Functions
-Version: 0.8.3
+Version: 0.8.4
 Author: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Maintainer: Dr. Thomas Weise <tweise@hfuu.edu.cn>
-Description: This package provides three functions, namely
+Description: This package provides four functions, namely
    \code{expression.simplify}, which attempts to resolve as many sub-expressions of
    an expression as possible, \code{function.canonicalize}, which tries to resolve
-   the promises and variables inside a function, and \code{function.compose} which
-   combines/chains two functions together.
+   the promises and variables inside a function, \code{function.substitute},
+   which substitutes a specified subset of the formal parameters of a function
+   with specified values, yielding a function of smaller arity, and
+   \code{function.compose} which combines/chains two functions together.
    The goal is to be able to produce readable and quick-to-evaluate functions,
    in particular to be able to compose functions iteratively without creating
    more and more complex entities that depend on different environments and are
@@ -32,7 +34,7 @@ Collate:
     'simplify.R'
     'canonicalize.R'
     'compose.R'
+    'substitute.R'
 RoxygenNote: 6.0.1.9000
 Imports: methods, pryr, stringr, rlang
 Suggests: testthat, roxygen2, microbenchmark
-

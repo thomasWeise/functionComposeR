@@ -118,7 +118,6 @@ test_that("Test compose functions multiple times", {
 })
 
 
-
 test_that("Test compose functions with constants", {
   f <- function(x) 5
   g <- function.compose(f, sin);
@@ -127,4 +126,14 @@ test_that("Test compose functions with constants", {
   f <- function(x) 5
   g <- function.compose(sin, f);
   expect_identical(g(4), 5);
+})
+
+
+test_that("Test compose functions with constants", {
+  f <- function(x, pars) pars[1] + pars[2]*(x + pars[3]*x)
+  g <- function(x) f(x, c(1, 2, 3))
+  h <- function.compose(f, g, f2g="pars")
+
+  x <- runif(1000);
+  expect_identical(h(x), f(x, c(1, 2, 3)))
 })
