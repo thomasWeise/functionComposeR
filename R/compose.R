@@ -161,6 +161,12 @@ function.compose <- function(f, g, f2g="x") {
     g.args <- base::formals(g);
     g.body <- base::body(g);
   }
+
+  # If the g has no arguments, then the return value of f is irrelevant and we
+  # can return g directly.
+  if(base::is.null(g.args)) {
+    return(g);
+  }
   g.body <- base::force(g.body);
   g.args <- base::force(g.args);
   g.args.names <- base::names(g.args);
@@ -194,8 +200,16 @@ function.compose <- function(f, g, f2g="x") {
 
   # The return value of f is used in g.
   # We now need to construct a new argument list for h.
-  f.discovery <- stringr::str_count(f2g, f.args.names);
-  if(base::sum(f.discovery) <= 0) {
+  if(base::is.null(f.args)) {
+    # OK, f has no arguments, so its argument list cannot contain the bridge argument.
+    f.discovery <- NULL;
+  } else {
+    # f has some arguments, so we scan for the bridge argument.
+    f.discovery <- stringr::str_count(f2g, f.args.names);
+  }
+
+  # Does the agument list of f contain the bridge argument itself?
+  if((base::is.null(f.discovery)) || (base::sum(f.discovery) <= 0)) {
     # This argument list does not contain the bridge argument if
     # f does not contain it either.
     h.args <- g.args[!h.discovery];
@@ -211,14 +225,17 @@ function.compose <- function(f, g, f2g="x") {
 
   # Now we add all arguments of f which are not already arguments of g
   # to the final argument list
-  for(i in 1:length(f.args)) {
-   f.arg.name <- f.args.names[[i]];
-    if(sum(stringr::str_detect(f.arg.name, h.args.names)) <= 0) {
-      # We add the argument only if it is not part of the argument list of h
-      h.args[[length(h.args)+1]] <- f.args[[i]];
-      h.args.names <- c(h.args.names, f.arg.name);
+  if(!(base::is.null(f.args))) {
+    for(i in 1:length(f.args)) {
+     f.arg.name <- f.args.names[[i]];
+      if(sum(stringr::str_detect(f.arg.name, h.args.names)) <= 0) {
+        # We add the argument only if it is not part of the argument list of h
+        h.args[[length(h.args)+1]] <- f.args[[i]];
+        h.args.names <- c(h.args.names, f.arg.name);
+      }
     }
   }
+
   h.args <- base::force(h.args);
   h.args.names <- base::force(h.args.names);
   # The list h.args should now contain all arguments of f and g,
@@ -290,7 +307,7 @@ function.compose <- function(f, g, f2g="x") {
 
   # What we need next is an environment for the function.
   if(g.is.primitive) {
-    h.env = base::parent.frame();
+    h.env <- base::parent.frame();
   } else {
     h.env <- base::environment(g);
   }

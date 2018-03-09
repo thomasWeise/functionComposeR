@@ -66,6 +66,12 @@ If `devtools` is not yet installed on your machine, you need to FIRST do
 
     install.packages("devtools")
     
+If you get the error `Installation failed: NULL : 'rcmd_safe_env' is not an exported object from 'namespace:callr'` during the installation attempt, please do the following:
+
+1. Install the package `callr` by typing `install.packages("callr")` in the `R` console and hitting enter.
+2. Exit your `R` session and start `R` again.
+3. Try the installation of `functionComposeR` again as described above.
+    
 ## Usage
 
 Here we give some use cases and additional examples for using the functions provided by our package.

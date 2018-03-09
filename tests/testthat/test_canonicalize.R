@@ -196,3 +196,14 @@ test_that("Test canonicalize functions with vector constants", {
   x <- runif(10000);
   expect_identical(f(x), g(x))
 })
+
+
+
+test_that("Test a nested function call", {
+  f <- function(x, pars) pars[1] + pars[2]*(x + pars[3]*x)
+  g <- function(x) f(x, c(1, 2, 3))
+  h <- function.canonicalize(g)
+  x <- runif(10000);
+  expect_identical(g(x), h(x))
+})
+
