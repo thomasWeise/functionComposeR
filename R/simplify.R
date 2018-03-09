@@ -3,6 +3,8 @@
 
 # a constant for the enclosure begin
 .enclosure.begin <- base::as.name("{")
+# a constant for the assignment begin
+.assignment.begin <- base::as.name("<-")
 
 # make a cache
 .cache.make <- function() {
@@ -65,23 +67,36 @@ expression.simplify <- function(expr, envir) {
     return(.cache.canonicalize(expr=expr, cache=cache));
   }
 
-  # First, we try to directly evaluate the expression
-  if(base::is.language(expr)) {
-    # Try to evaluate the expression.
-    tryCatch({
-      result <- base::eval(expr=expr, envir=envir);
-      result <- base::force(result);
-      if(!(base::is.primitive(result))) {
-        # Cool, everything has worked and the expression is evaluated.
-        # We can replace it with its result
-        return(.cache.canonicalize(expr=result, cache=cache));
-      }
-    }, error=.ignore, warning=.ignore)
-  }
   # Convert the expression to a list.
   expr.list <- base::as.list(expr);
-
   expr.length <- base::length(expr.list);
+
+  # Is the expression an assignment?
+  expr.is.assignment = ((expr.length >= 3) && (base::identical(expr.list[[1]], .assignment.begin)));
+
+  # We only consider evaluating the expression if it is not an assignment.
+  # Otherwise we pollute the environment.
+  if(!(expr.is.assignment)) {
+    # First, we try to directly evaluate the expression
+    if(base::is.language(expr)) {
+      # Try to evaluate the expression.
+      tryCatch({
+        # If the expression contains an assignment, evaluating it in its parent
+        # environment will pollute this enviroment (by creating or modifying the
+        # variable assigned to). In order to prevent this or similar effects, we
+        # evaluate the expression in a child-environment envir.cpy.
+        envir.cpy <- base::new.env(parent=envir);
+        result <- base::eval(expr=expr, envir=envir.cpy);
+        result <- base::force(result);
+        if(!(base::is.primitive(result))) {
+          # Cool, everything has worked and the expression is evaluated.
+          # We can replace it with its result
+          return(.cache.canonicalize(expr=result, cache=cache));
+        }
+      }, error=.ignore, warning=.ignore)
+    }
+  }
+
   # If the list has length 1, we can return it directly.
   if((expr.length <= 1)) {
     return(.cache.canonicalize(expr=expr, cache=cache));
@@ -106,14 +121,25 @@ expression.simplify <- function(expr, envir) {
     return(result);
   }
 
-  # Otherwise, we will recursivel try to evaluate all sub-expressions
+  # Otherwise, we will recursively try to evaluate all sub-expressions
   # and return the result.
-  result <- .cache.canonicalize(expr=
-              base::as.call(base::lapply(X=expr.list,
-                                         FUN=.expression.simplify,
-                                         envir=envir,
-                                         cache=cache)),
-              cache=cache);
+  if(expr.is.assignment){
+    # Of course, if the expression is an assignment, we won't destroy it by resolving
+    # the target parameter name.
+    result.list <- base::lapply(X=1:expr.length,
+                                FUN=function(x, envir, cache) {
+                                  if(x <= 2) { return(expr.list[[x]]); }
+                                  .expression.simplify(expr.list[[x]], envir, cache)
+                                },
+                                envir=envir,
+                                cache=cache);
+  } else {
+    result.list <- base::lapply(X=expr.list,
+                                FUN=.expression.simplify,
+                                envir=envir,
+                                cache=cache);
+  }
+  result <- .cache.canonicalize(expr=base::as.call(result.list), cache=cache);
   result <- base::force(result);
   return(result);
 }
