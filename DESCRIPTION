@@ -1,7 +1,7 @@
 Package: functionComposeR
 Type: Package
 Title: R Package for Composing and Canonicalizing Functions
-Version: 0.8.5
+Version: 0.8.6
 Author: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Maintainer: Dr. Thomas Weise <tweise@hfuu.edu.cn>
 Description: This package provides four functions, namely
@@ -29,7 +29,7 @@ License: LGPL-3
 Encoding: UTF-8
 URL: http://github.com/thomasWeise/functionComposeR/
 BugReports: http://github.com/thomasWeise/functionComposeR/issues
-Depends: R (>= 3.3.2)
+Depends: R (>= 3.3.0)
 Imports: methods (>= 3.3.2),
          pryr (>= 0.1.4),
          stringr (>= 1.3.0),
