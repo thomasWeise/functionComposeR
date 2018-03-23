@@ -28,37 +28,37 @@ function.substitute <- function(f, substitutes) {
 
 # The implementation of function.substitute
 .function.substitute <- function(f, substitutes, cache) {
-  if(base::is.null(substitutes)) { return(f); }
+  if(is.null(substitutes)) { return(f); }
 
-  substitutes.length <- base::length(substitutes);
+  substitutes.length <- length(substitutes);
   if(substitutes.length <= 0) { return(f); }
 
   # We then try to extract the body and arguments of function f
-  f.is.primitive <- base::is.primitive(f);
+  f.is.primitive <- is.primitive(f);
   if(f.is.primitive) {
-    f.args <- base::formals(base::args(f));
-    f.body <- base::body(rlang::as_closure(f));
+    f.args <- formals(args(f));
+    f.body <- body(rlang::as_closure(f));
     f.env <- new.env();
   } else {
-    f.args <- base::formals(f);
-    f.body <- base::body(f);
-    f.env <- base::environment(f);
+    f.args <- formals(f);
+    f.body <- body(f);
+    f.env <- environment(f);
   }
 
   # If the f has no arguments, then the return value of f is irrelevant and we
   # can return f directly.
-  if(base::is.null(f.args)) {
+  if(is.null(f.args)) {
     return(f);
   }
 
   # Make sure all substitutes are canonical.
-  substitutes <- base::lapply(X=substitutes, FUN=.cache.canonicalize, cache=cache)
+  substitutes <- lapply(X=substitutes, FUN=.cache.canonicalize, cache=cache)
 
   # Turn the substitutes into an environment with the environment of f as
   # parent. This should allow resolving all substitutes as well as all
   # constants.
-  temp.env <- base::as.environment(substitutes);
-  base::parent.env(temp.env) <- f.env;
+  temp.env <- as.environment(substitutes);
+  parent.env(temp.env) <- f.env;
 
   # Remember the original body of f.
   f.body.orig <- f.body;
@@ -68,16 +68,16 @@ function.substitute <- function(f, substitutes) {
   f.body <- .expression.simplify(expr=f.body, envir=temp.env, cache=cache);
 
   # Delete the substituted arguments.
-  for(name in base::names(substitutes)) {
+  for(name in names(substitutes)) {
     f.args[name] <- NULL;
   }
 
   # Compose the new function, with resolved symbols and less arguments.
-  if(base::is.language(f.body)) {
+  if(is.language(f.body)) {
     # After the body has been resolved as far is it is possible, we re-compose
     # the function
     f <- pryr::make_function(args=f.args, body=f.body, env=f.env)
-    f <- base::force(f);
+    f <- force(f);
     # Now we apply the default unenclose method from pryr (for good measures)
     f <- .function.canonicalize(f=f, cache=cache);
   } else {
@@ -86,11 +86,11 @@ function.substitute <- function(f, substitutes) {
     # So we have to first construct a function with the original body,
     # then change the body to the new (constant) body.
     f <- pryr::make_function(args=f.args, body=f.body.orig, env=f.env)
-    base::body(f) <- f.body;
+    body(f) <- f.body;
   }
 
   # Finally, we  enforce f and are finished
-  f <- base::force(f);
+  f <- force(f);
   return(f)
 }
 

@@ -145,37 +145,37 @@ function.compose <- function(f, g, f2g="x") {
 .function.compose <- function(f, g, f2g="x", cache) {
   # First, we canonicalize g
   g <- .function.canonicalize(f=g, cache=cache);
-  g <- base::force(g);
+  g <- force(g);
 
   # If f is null or f2g is null, we just return the canonicalized g.
-  if(base::is.null(f) || base::is.null(f2g)) {
+  if(is.null(f) || is.null(f2g)) {
     return(g);
   }
 
   # We then try to extract the body and arguments of function g
-  g.is.primitive <- base::is.primitive(g);
+  g.is.primitive <- is.primitive(g);
   if(g.is.primitive) {
-    g.args <- base::formals(base::args(g));
-    g.body <- base::body(rlang::as_closure(g));
+    g.args <- formals(args(g));
+    g.body <- body(rlang::as_closure(g));
   } else {
-    g.args <- base::formals(g);
-    g.body <- base::body(g);
+    g.args <- formals(g);
+    g.body <- body(g);
   }
 
   # If the g has no arguments, then the return value of f is irrelevant and we
   # can return g directly.
-  if(base::is.null(g.args)) {
+  if(is.null(g.args)) {
     return(g);
   }
-  g.body <- base::force(g.body);
-  g.args <- base::force(g.args);
-  g.args.names <- base::names(g.args);
-  g.args.names <- base::force(g.args.names);
+  g.body <- force(g.body);
+  g.args <- force(g.args);
+  g.args.names <- names(g.args);
+  g.args.names <- force(g.args.names);
 
   # Now we check where the "bridge argument" f2g of g which should be
   # replaced by the return value of f occurs in the argument list of g
   h.discovery <- stringr::str_count(f2g, g.args.names);
-  if(base::sum(h.discovery) <= 0L) {
+  if(sum(h.discovery) <= 0L) {
     # It does not occur, so this means that f plays no role in g and g
     # can be returned as is
     return(g);
@@ -183,24 +183,24 @@ function.compose <- function(f, g, f2g="x") {
 
   # We now canonicalize f
   f <- .function.canonicalize(f=f, cache=cache);
-  f <- base::force(f);
+  f <- force(f);
 
   # We then try to extract the body and arguments of function f
-  if(base::is.primitive(f)) {
-    f.args <- base::formals(base::args(f));
-    f.body <- base::body(rlang::as_closure(f));
+  if(is.primitive(f)) {
+    f.args <- formals(args(f));
+    f.body <- body(rlang::as_closure(f));
   } else {
-    f.args <- base::formals(f);
-    f.body <- base::body(f);
+    f.args <- formals(f);
+    f.body <- body(f);
   }
-  f.body <- base::force(f.body);
-  f.args <- base::force(f.args);
-  f.args.names <- base::names(f.args);
-  f.args.names <- base::force(f.args.names);
+  f.body <- force(f.body);
+  f.args <- force(f.args);
+  f.args.names <- names(f.args);
+  f.args.names <- force(f.args.names);
 
   # The return value of f is used in g.
   # We now need to construct a new argument list for h.
-  if(base::is.null(f.args)) {
+  if(is.null(f.args)) {
     # OK, f has no arguments, so its argument list cannot contain the bridge argument.
     f.discovery <- NULL;
   } else {
@@ -209,7 +209,7 @@ function.compose <- function(f, g, f2g="x") {
   }
 
   # Does the agument list of f contain the bridge argument itself?
-  if((base::is.null(f.discovery)) || (base::sum(f.discovery) <= 0)) {
+  if((is.null(f.discovery)) || (sum(f.discovery) <= 0)) {
     # This argument list does not contain the bridge argument if
     # f does not contain it either.
     h.args <- g.args[!h.discovery];
@@ -225,7 +225,7 @@ function.compose <- function(f, g, f2g="x") {
 
   # Now we add all arguments of f which are not already arguments of g
   # to the final argument list
-  if(!(base::is.null(f.args))) {
+  if(!(is.null(f.args))) {
     for(i in 1:length(f.args)) {
      f.arg.name <- f.args.names[[i]];
       if(sum(stringr::str_detect(f.arg.name, h.args.names)) <= 0) {
@@ -236,13 +236,13 @@ function.compose <- function(f, g, f2g="x") {
     }
   }
 
-  h.args <- base::force(h.args);
-  h.args.names <- base::force(h.args.names);
+  h.args <- force(h.args);
+  h.args.names <- force(h.args.names);
   # The list h.args should now contain all arguments of f and g,
   # without the bridge argument, but with default values, if any
 
   # We need the bridge argument as name.
-  f2g.as.name <- base::as.name(f2g);
+  f2g.as.name <- as.name(f2g);
 
   # We now want to test whether we can replace f2g directly with the body of f.
   # This can only be done if g is not a primitive function.
@@ -250,18 +250,18 @@ function.compose <- function(f, g, f2g="x") {
 
   # We test how often exactly the bridge parameter occurs in g.
   pryr::modify_lang(x=g.body, f=function(x, envir) {
-    if (base::is.name(x) && base::identical(x, f2g.as.name)) {
-      base::assign("counter", (base::get("counter", envir=envir) + 1L), envir=envir);
+    if (is.name(x) && identical(x, f2g.as.name)) {
+      assign("counter", (get("counter", envir=envir) + 1L), envir=envir);
     }
     return(x);
-  }, envir=base::environment() );
+  }, envir=environment() );
 
   # OK, we have counted the occurences of f2g in the body of g.
   if(counter == 1L) {
     # f2g occurs exactly once if the body of g.
     # This means we can replace the occurence of f2g directly with the body of f.
     h.body <- pryr::modify_lang(x=g.body, f=function(x) {
-      if (base::is.name(x) && base::identical(x, f2g.as.name)) {
+      if (is.name(x) && identical(x, f2g.as.name)) {
         return(f.body);
       }
     return(x);
@@ -283,15 +283,15 @@ function.compose <- function(f, g, f2g="x") {
     .temp.3.name = as.name(".temp.3");
 
     # Now we try to adapt the template function to the real task.
-    h.body <- pryr::modify_lang(base::body(h.template), function(x) {
-      if (base::is.name(x)) {
-        if(base::identical(x, .temp.1.name)) {
+    h.body <- pryr::modify_lang(body(h.template), function(x) {
+      if (is.name(x)) {
+        if(identical(x, .temp.1.name)) {
           return(f2g.as.name);
         }
-        if(base::identical(x, .temp.2.name)) {
+        if(identical(x, .temp.2.name)) {
           return(f.body);
         }
-        if(base::identical(x, .temp.3.name)) {
+        if(identical(x, .temp.3.name)) {
           return(g.body);
         }
       }
@@ -301,25 +301,25 @@ function.compose <- function(f, g, f2g="x") {
 
   # So now we have constructed a body and arguments list for h.
   # We now enforce both.
-  h.args <- base::force(h.args);
-  base::names(h.args) <- base::force(h.args.names);
-  h.body <- base::force(h.body);
+  h.args <- force(h.args);
+  names(h.args) <- force(h.args.names);
+  h.body <- force(h.body);
 
   # What we need next is an environment for the function.
   if(g.is.primitive) {
-    h.env <- base::parent.frame();
+    h.env <- parent.frame();
   } else {
-    h.env <- base::environment(g);
+    h.env <- environment(g);
   }
-  h.env <- base::force(h.env);
+  h.env <- force(h.env);
 
   # We now can create a new function object.
   h <- pryr::make_function(h.args, h.body, h.env)
-  h <- base::force(h);
+  h <- force(h);
 
   # Finally, we try to resolve all elements of it.
   h <- .function.canonicalize(f=h, cache=cache);
-  h <- base::force(h);
+  h <- force(h);
   return(h)
 }
 

@@ -2,24 +2,24 @@
 .ignore <- function(x) {}
 
 # a constant for the enclosure begin
-.enclosure.begin <- base::as.name("{")
+.enclosure.begin <- as.name("{")
 # a constant for the assignment begin
-.assignment.begin <- base::as.name("<-")
+.assignment.begin <- as.name("<-")
 
 # make a cache
 .cache.make <- function() {
-  return(base::new.env(hash=FALSE));
+  return(new.env(hash=FALSE));
 }
 
 # Canonicalize an expression by abusing an environment as modifiable list
 .cache.canonicalize <- function(expr, cache) {
-  .cache.list <- base::as.list(cache);
+  .cache.list <- as.list(cache);
   for (.value in .cache.list) {
-    if(base::identical(.value, expr)) {
+    if(identical(.value, expr)) {
       return(.value);
     }
   }
-  cache[[base::toString(base::length(.cache.list)+1)]] <- expr;
+  cache[[toString(length(.cache.list)+1)]] <- expr;
   return(expr);
 }
 
@@ -63,32 +63,32 @@ expression.simplify <- function(expr, envir) {
 # The implementation of expression.simplify
 .expression.simplify <- function(expr, envir, cache) {
   # If the expression is already numeric, we don't need to do anything
-  if(base::is.numeric(expr)) {
+  if(is.numeric(expr)) {
     return(.cache.canonicalize(expr=expr, cache=cache));
   }
 
   # Convert the expression to a list.
-  expr.list <- base::as.list(expr);
-  expr.length <- base::length(expr.list);
+  expr.list <- as.list(expr);
+  expr.length <- length(expr.list);
 
   # Is the expression an assignment?
-  expr.is.assignment = ((expr.length >= 3) && (base::identical(expr.list[[1]], .assignment.begin)));
+  expr.is.assignment = ((expr.length >= 3) && (identical(expr.list[[1]], .assignment.begin)));
 
   # We only consider evaluating the expression if it is not an assignment.
   # Otherwise we pollute the environment.
   if(!(expr.is.assignment)) {
     # First, we try to directly evaluate the expression
-    if(base::is.language(expr)) {
+    if(is.language(expr)) {
       # Try to evaluate the expression.
       tryCatch({
         # If the expression contains an assignment, evaluating it in its parent
         # environment will pollute this enviroment (by creating or modifying the
         # variable assigned to). In order to prevent this or similar effects, we
         # evaluate the expression in a child-environment envir.cpy.
-        envir.cpy <- base::new.env(parent=envir);
-        result <- base::eval(expr=expr, envir=envir.cpy);
-        result <- base::force(result);
-        if(!(base::is.primitive(result))) {
+        envir.cpy <- new.env(parent=envir);
+        result <- eval(expr=expr, envir=envir.cpy);
+        result <- force(result);
+        if(!(is.primitive(result))) {
           # Cool, everything has worked and the expression is evaluated.
           # We can replace it with its result
           return(.cache.canonicalize(expr=result, cache=cache));
@@ -105,7 +105,7 @@ expression.simplify <- function(expr, envir) {
   # If there are missing elements (this may happen if there is a `...` involved somewhere)
   # then we better not touch them...
   for(element in expr.list) {
-    if(base::missing(element)) {
+    if(missing(element)) {
       # If there are missing values, we are done and quit immediately
       return(.cache.canonicalize(expr=expr, cache=cache));
     }
@@ -113,7 +113,7 @@ expression.simplify <- function(expr, envir) {
 
   # We try to remove useless enclosures such as "{x}" by converting them to the
   # form "x".
-  if((expr.length == 2) && base::identical(expr.list[[1]], .enclosure.begin)) {
+  if((expr.length == 2) && identical(expr.list[[1]], .enclosure.begin)) {
     result <- .expression.simplify(expr=expr.list[[2]],
                                    envir=envir,
                                    cache=cache);
@@ -126,7 +126,7 @@ expression.simplify <- function(expr, envir) {
   if(expr.is.assignment){
     # Of course, if the expression is an assignment, we won't destroy it by resolving
     # the target parameter name.
-    result.list <- base::lapply(X=1:expr.length,
+    result.list <- lapply(X=1:expr.length,
                                 FUN=function(x, envir, cache) {
                                   if(x <= 2) { return(expr.list[[x]]); }
                                   .expression.simplify(expr.list[[x]], envir, cache)
@@ -134,12 +134,12 @@ expression.simplify <- function(expr, envir) {
                                 envir=envir,
                                 cache=cache);
   } else {
-    result.list <- base::lapply(X=expr.list,
+    result.list <- lapply(X=expr.list,
                                 FUN=.expression.simplify,
                                 envir=envir,
                                 cache=cache);
   }
-  result <- .cache.canonicalize(expr=base::as.call(result.list), cache=cache);
-  result <- base::force(result);
+  result <- .cache.canonicalize(expr=as.call(result.list), cache=cache);
+  result <- force(result);
   return(result);
 }
