@@ -37,7 +37,7 @@ function.substitute <- function(f, substitutes) {
   f.is.primitive <- is.primitive(f);
   if(f.is.primitive) {
     f.args <- formals(args(f));
-    f.body <- body(rlang::as_closure(f));
+    f.body <- body(as_closure(f));
     f.env <- new.env();
   } else {
     f.args <- formals(f);
@@ -76,16 +76,16 @@ function.substitute <- function(f, substitutes) {
   if(is.language(f.body)) {
     # After the body has been resolved as far is it is possible, we re-compose
     # the function
-    f <- pryr::make_function(args=f.args, body=f.body, env=f.env)
+    f <- make_function(args=f.args, body=f.body, env=f.env)
     f <- force(f);
     # Now we apply the default unenclose method from pryr (for good measures)
     f <- .function.canonicalize(f=f, cache=cache);
   } else {
     # If we get here, the body of f somehow became a constant.
-    # This won't fly with pryr::make_function nor with pryr::unenclose.
+    # This won't fly with make_function nor with unenclose.
     # So we have to first construct a function with the original body,
     # then change the body to the new (constant) body.
-    f <- pryr::make_function(args=f.args, body=f.body.orig, env=f.env)
+    f <- make_function(args=f.args, body=f.body.orig, env=f.env)
     body(f) <- f.body;
   }
 

@@ -92,7 +92,7 @@ function.canonicalize <- function(f) {
 
       # We now try to resolve all promises in f by applying the solution given by
       # schloerke at http://github.com/hadley/pryr/issues/43
-      f.body <- pryr::modify_lang(x=f.body,
+      f.body <- modify_lang(x=f.body,
                     f=function(x) {
                       if (is.name(x)) {
                         x.deparsed <- deparse(x)
@@ -118,12 +118,12 @@ function.canonicalize <- function(f) {
       if(is.language(f.body)) {
         # We now apply the second line of resolution, namely substitute_q,
         # but only if f.body has not become a constant yet.
-        f.body <- pryr::substitute_q(x=f.body, env=f.env)
+        f.body <- substitute_q(x=f.body, env=f.env)
         f.body <- force(f.body);
       }
 
       # Now with substitute direct to clean up
-      f.body <- methods::substituteDirect(object=f.body, frame=f.env, cleanFunction=TRUE);
+      f.body <- substituteDirect(object=f.body, frame=f.env, cleanFunction=TRUE);
       f.body <- force(f.body);
 
       # Now we try to evaluate all evaluate-able sub-expressions of f.
@@ -133,16 +133,16 @@ function.canonicalize <- function(f) {
       if(is.language(f.body)) {
         # After the body has been resolved as far is it is possible, we re-compose
         # the function
-        f <- pryr::make_function(args=formals(f), body=f.body, env=f.env)
+        f <- make_function(args=formals(f), body=f.body, env=f.env)
         f <- force(f);
         # Now we apply the default unenclose method from pryr (for good measures)
-        f <- pryr::unenclose(f=f);
+        f <- unenclose(f=f);
       } else {
         # If we get here, the body of f somehow became a constant.
-        # This won't fly with pryr::make_function nor with pryr::unenclose.
+        # This won't fly with make_function nor with unenclose.
         # So we have to first construct a function with the original body,
         # then change the body to the new (constant) body.
-        f <- pryr::make_function(args=formals(f), body=f.body.orig, env=f.env)
+        f <- make_function(args=formals(f), body=f.body.orig, env=f.env)
         body(f) <- f.body;
       }
       f <- force(f);

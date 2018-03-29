@@ -156,7 +156,7 @@ function.compose <- function(f, g, f2g="x") {
   g.is.primitive <- is.primitive(g);
   if(g.is.primitive) {
     g.args <- formals(args(g));
-    g.body <- body(rlang::as_closure(g));
+    g.body <- body(as_closure(g));
   } else {
     g.args <- formals(g);
     g.body <- body(g);
@@ -174,7 +174,7 @@ function.compose <- function(f, g, f2g="x") {
 
   # Now we check where the "bridge argument" f2g of g which should be
   # replaced by the return value of f occurs in the argument list of g
-  h.discovery <- stringr::str_count(f2g, g.args.names);
+  h.discovery <- str_count(f2g, g.args.names);
   if(sum(h.discovery) <= 0L) {
     # It does not occur, so this means that f plays no role in g and g
     # can be returned as is
@@ -188,7 +188,7 @@ function.compose <- function(f, g, f2g="x") {
   # We then try to extract the body and arguments of function f
   if(is.primitive(f)) {
     f.args <- formals(args(f));
-    f.body <- body(rlang::as_closure(f));
+    f.body <- body(as_closure(f));
   } else {
     f.args <- formals(f);
     f.body <- body(f);
@@ -205,7 +205,7 @@ function.compose <- function(f, g, f2g="x") {
     f.discovery <- NULL;
   } else {
     # f has some arguments, so we scan for the bridge argument.
-    f.discovery <- stringr::str_count(f2g, f.args.names);
+    f.discovery <- str_count(f2g, f.args.names);
   }
 
   # Does the agument list of f contain the bridge argument itself?
@@ -228,7 +228,7 @@ function.compose <- function(f, g, f2g="x") {
   if(!(is.null(f.args))) {
     for(i in 1:length(f.args)) {
      f.arg.name <- f.args.names[[i]];
-      if(sum(stringr::str_detect(f.arg.name, h.args.names)) <= 0) {
+      if(sum(str_detect(f.arg.name, h.args.names)) <= 0) {
         # We add the argument only if it is not part of the argument list of h
         h.args[[length(h.args)+1]] <- f.args[[i]];
         h.args.names <- c(h.args.names, f.arg.name);
@@ -249,7 +249,7 @@ function.compose <- function(f, g, f2g="x") {
   counter <- 0L;
 
   # We test how often exactly the bridge parameter occurs in g.
-  pryr::modify_lang(x=g.body, f=function(x, envir) {
+  modify_lang(x=g.body, f=function(x, envir) {
     if (is.name(x) && identical(x, f2g.as.name)) {
       assign("counter", (get("counter", envir=envir) + 1L), envir=envir);
     }
@@ -260,7 +260,7 @@ function.compose <- function(f, g, f2g="x") {
   if(counter == 1L) {
     # f2g occurs exactly once if the body of g.
     # This means we can replace the occurence of f2g directly with the body of f.
-    h.body <- pryr::modify_lang(x=g.body, f=function(x) {
+    h.body <- modify_lang(x=g.body, f=function(x) {
       if (is.name(x) && identical(x, f2g.as.name)) {
         return(f.body);
       }
@@ -283,7 +283,7 @@ function.compose <- function(f, g, f2g="x") {
     .temp.3.name = as.name(".temp.3");
 
     # Now we try to adapt the template function to the real task.
-    h.body <- pryr::modify_lang(body(h.template), function(x) {
+    h.body <- modify_lang(body(h.template), function(x) {
       if (is.name(x)) {
         if(identical(x, .temp.1.name)) {
           return(f2g.as.name);
@@ -314,7 +314,7 @@ function.compose <- function(f, g, f2g="x") {
   h.env <- force(h.env);
 
   # We now can create a new function object.
-  h <- pryr::make_function(h.args, h.body, h.env)
+  h <- make_function(h.args, h.body, h.env)
   h <- force(h);
 
   # Finally, we try to resolve all elements of it.
