@@ -61,6 +61,7 @@ expression.simplify <- function(expr, envir) {
 }
 
 # The implementation of expression.simplify
+#' @importFrom utilizeR ignoreErrors
 .expression.simplify <- function(expr, envir, cache) {
   # If the expression is already numeric, we don't need to do anything
   if(is.numeric(expr)) {
@@ -80,7 +81,7 @@ expression.simplify <- function(expr, envir) {
     # First, we try to directly evaluate the expression
     if(is.language(expr)) {
       # Try to evaluate the expression.
-      tryCatch({
+      ignoreErrors({
         # If the expression contains an assignment, evaluating it in its parent
         # environment will pollute this enviroment (by creating or modifying the
         # variable assigned to). In order to prevent this or similar effects, we
@@ -93,7 +94,7 @@ expression.simplify <- function(expr, envir) {
           # We can replace it with its result
           return(.cache.canonicalize(expr=result, cache=cache));
         }
-      }, error=.ignore, warning=.ignore)
+      })
     }
   }
 
